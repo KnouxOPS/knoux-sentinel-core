@@ -1,37 +1,25 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path'; // <- ضيف السطر ده عشان نستخدم path
 
 export default defineConfig({
-  plugins: [
-    react(),
-    runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
-        ]
-      : []),
-  ],
+  plugins: [react()],
+  // لازم هنا نحدد جذر تطبيق الـ frontend داخل مجلد الـ 'client'
+  root: 'client', // <- تأكد أن جذر Vite هو مجلد client
+
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      // هنا بنقول لـ Vite إن '@' = 'client/src'
+      '@': path.resolve(__dirname, './client/src'), // <- السطر ده هو أهم حل لمشكلة الـ @
     },
   },
-  root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    // لازم بناء الواجهة يكون داخل dist/public
+    outDir: './dist/public', // <- تأكد أن الواجهة تبني هنا
     emptyOutDir: true,
   },
-  server: {
-    fs: {
-      strict: true,
-      deny: ["**/.*"],
-    },
-  },
+  // حل مشكلة 'defineConfig' is undefined في السيرفر
+  optimizeDeps: {
+    exclude: ['vite']
+  }
 });

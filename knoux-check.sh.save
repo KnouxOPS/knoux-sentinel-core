@@ -1,0 +1,36 @@
+#!/bin/bash
+echo "🧩 KNOUX VERSA Project Structure Scanner"
+echo "=============================="
+project_root=$(pwd)
+must_have=( "package.json" "main.js" "vite.config.ts" "dist" "server" "client" )
+echo "Root: $project_root"
+echo
+
+# فحص الملفات/المجلدات الرئيسية
+for item in "${must_have[@]}"; do
+    if [ -e "$item" ]; then
+        echo "✔️  $item موجود"
+    else
+        echo "❌ $item ناقص أو مش موجود"
+    fi
+done
+
+# فحص dist/public/index.html
+if [ -e "dist/public/index.html" ]; then
+    echo "✔️  dist/public/index.html موجود"
+else
+    echo "❌ dist/public/index.html ناقص"
+fi
+
+# فحص scripts في package.json
+if [ -f package.json ]; then
+    scripts=$(jq -r '.scripts | keys[]' package.json 2>/dev/null)
+    echo; echo "📝 Scripts في package.json:"
+    echo "$scripts" | while read s; do
+        echo "  - $s"
+    done
+else
+    echo "❌ package.json مش موجود — مش هقدر أجيب السكربتات"
+fi
+
+echo; echo "انتهى الفحص…"
